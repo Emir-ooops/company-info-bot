@@ -1,7 +1,18 @@
-export const LPRCard = ({ lpr }) => (
-    <div className="p-3 bg-zinc-800 rounded shadow-sm">
-        <p><b>ФИО:</b> {lpr.name}</p>
-        <p><b>Отдел:</b> {lpr.department}</p>
-        <p><b>Email:</b> {lpr.email}</p>
-    </div>
-);
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/Card";
+
+export default function LPRCard({ lpr }) {
+    if (!lpr) return null;
+
+    return (
+        <Card className="bg-zinc-900">
+            <CardHeader>
+                <CardTitle>{lpr.name}</CardTitle>
+                <CardDescription>{lpr.position}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p>Email: {lpr.email || "Нет данных"}</p>
+                <p>Телефон: {lpr.phone || "Нет данных"}</p>
+            </CardContent>
+        </Card>
+    );
+}

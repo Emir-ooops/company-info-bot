@@ -1,42 +1,42 @@
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
 import * as XLSX from "xlsx";
 
-// PDF экспорт
-export const exportPDF = (company, lprs, purchases) => {
-    const doc = new jsPDF();
-    let y = 10;
+// Экспорт текстовых данных компании в PDF
+export function exportToPDF(company) {
+    if (!company) return;
 
-    if (company) {
-        doc.setFontSize(14);
-        doc.text(`Компания: ${company.name}`, 10, y); y += 8;
-        doc.text(`Выручка: ${company.revenue || "Нет данных"}`, 10, y); y += 8;
-        doc.text(`Новости: ${company.news?.join(", ") || "Нет данных"}`, 10, y); y += 10;
-    }
+    const content = [];
 
-    if (lprs?.length) {
-        doc.setFontSize(12);
-        doc.text("ЛПР:", 10, y); y += 8;
-        lprs.forEach(lpr => {
-            doc.text(`- ${lpr.name}, ${lpr.department}, ${lpr.email}`, 12, y); y += 6;
-        });
-        y += 4;
-    }
+    // Заголовок
+    content.push({ text: company.name || "Компания", fontSize: 16, bold: true, margin: [0, 0, 0, 8] });
 
-    if (purchases?.length) {
-        doc.text("Закупки:", 10, y); y += 8;
-        purchases.forEach(p => {
-            doc.text(`- ${p.category}: ${p.amount} (${p.date})`, 12, y); y += 6;
+    // Основная информация
+    if (company.activity) content.push({ text: `Деятельность: ${company.activity}`, margin: [0, 0, 0, 4] });
+    if (company.revenue) content.push({ text: `Выручка: ${company.revenue}`, margin: [0, 0, 0, 4] });
+    if (company.employees) content.push({ text: `Сотрудники: ${company.employees}`, margin: [0, 0, 0, 4] });
+
+    // Новости
+    if (company.news?.length > 0) {
+        content.push({ text: "Новости:", bold: true, margin: [0, 8, 0, 4] });
+        company.news.forEach((n) => {
+            content.push({ text: `• ${n}`, margin: [10, 0, 0, 2] });
         });
     }
 
-    doc.save("company_summary.pdf");
-};
+    // Контакты
+    if (company.contacts?.email) content.push({ text: `Email: ${company.contacts.email}`, margin: [0, 4, 0, 0] });
+    if (company.contacts?.phone) content.push({ text: `Телефон: ${company.contacts.phone}`, margin: [0, 2, 0, 0] });
 
-// Excel экспорт
-export const exportExcel = (purchases) => {
-    const ws = XLSX.utils.json_to_sheet(purchases);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Закупки");
-    XLSX.writeFile(wb, "company_summary.xlsx");
-};
+    // Адрес
+    if (company.address) content.push({ text: `Адрес: ${company.address}`, margin: [0, 4, 0, 0] });
+
+    // Создание PDF и загрузка
+    pdfMake.createPdf({ content }).download("company-info.pdf");
+}
+
+// Экспорт таблицы закупок в Excel
+export function exportToExcel(data, fileName = "purchases.xlsx") {
+    const worksheet = XLSX.utils.json_to_sheet(data || []);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet1");
+    XLSX.writeFile(workbook, fileName);
+}

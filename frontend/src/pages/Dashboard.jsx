@@ -1,51 +1,60 @@
-import { useState } from "react";
+import React from "react";
 import { Header } from "../components/Header";
+import CompanyCard from "../components/CompanyCard";
+import LPRCard from "../components/LPRCard";
 import { Button } from "../components/ui/Button";
-import { CompanyCard } from "../components/CompanyCard";
-import { LPRCard } from "../components/LPRCard";
-import { PurchasesTable } from "../components/PurchasesTable";
-import { exportPDF, exportExcel } from "../components/ExportUtils";
+import { useMediaQuery } from 'react-responsive';
+import { exportToPDF, exportToExcel } from "../components/ExportUtils"; // импортируем функции экспорта
 
 export default function Dashboard({ company, onBack }) {
-    // Моковые данные для ЛПР
-    const [lprs] = useState([
-        { name: "Иван Иванов", department: "Энергетика", email: "ivan@company.com" },
-        { name: "Мария Петрова", department: "ИТ", email: "maria@company.com" },
-    ]);
+    const isMobile = useMediaQuery({ maxWidth: 767 });
 
-    // Моковые данные для закупок
-    const [purchases] = useState([
-        { category: "Энергетика", amount: "5 млн ₽", date: "2025-01-15" },
-        { category: "ИТ", amount: "2 млн ₽", date: "2025-02-20" },
-    ]);
+    if (!company) return null;
 
     return (
-        <div className="p-4 flex flex-col gap-4">
-            <Header title="Dashboard" onBack={onBack} />
+        <div className="min-h-screen w-full bg-zinc-950 text-white flex flex-col px-4 py-6">
+            <Header title="Информация о компании" />
 
-            {/* Информация о компании */}
-            {company && <CompanyCard company={company} />}
+            <div className={`flex ${isMobile ? "flex-col" : "flex-row"} gap-6 mt-6 w-full max-w-6xl mx-auto h-full`}>
+                {/* Левая колонка с текстовым контентом */}
+                <div className="flex-1 flex flex-col gap-4" id="company-card">
+                    <CompanyCard company={company} isMobile={isMobile} />
 
-            {/* Список ЛПР */}
-            <div>
-                <h2 className="text-lg font-bold mb-2">ЛПР</h2>
-                <div className="flex flex-col gap-2">
-                    {lprs.map((lpr, i) => (
-                        <LPRCard key={i} lpr={lpr} />
-                    ))}
+                    {company.lpr && <LPRCard lpr={company.lpr} />}
+
+                    <div className="flex gap-4 mt-2">
+                        <Button
+                            className="flex-1 bg-teal-600 hover:bg-teal-500"
+                            onClick={() => exportToPDF(company)} // передаем id блока без карты
+                        >
+                            Экспорт в PDF
+                        </Button>
+                        <Button
+                            className="flex-1 bg-blue-600 hover:bg-blue-500"
+                            onClick={() => exportToExcel(company.purchases)}
+                        >
+                            Экспорт в Excel
+                        </Button>
+                    </div>
+
+                    <Button className="mt-4 bg-zinc-800 hover:bg-zinc-700" onClick={onBack}>Назад</Button>
                 </div>
-            </div>
 
-            {/* Таблица закупок */}
-            <div>
-                <h2 className="text-lg font-bold mb-2">Закупки</h2>
-                <PurchasesTable purchases={purchases} />
-            </div>
-
-            {/* Кнопки экспорта */}
-            <div className="flex gap-2 mt-4">
-                <Button onClick={() => exportPDF(company, lprs, purchases)}>Экспорт PDF</Button>
-                <Button onClick={() => exportExcel(purchases)}>Экспорт Excel</Button>
+                {/* Правая колонка — карта только на desktop */}
+                {!isMobile && company.address && (
+                    <div className="flex-1 flex justify-center items-center">
+                        <div className="w-full h-full rounded-lg overflow-hidden border border-zinc-700">
+                            <iframe
+                                title="company-map"
+                                src={`https://yandex.ru/map-widget/v1/?text=${encodeURIComponent(company.address)}&z=15`}
+                                width="100%"
+                                height="100%"
+                                frameBorder="0"
+                                allowFullScreen
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
