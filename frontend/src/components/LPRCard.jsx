@@ -1,3 +1,4 @@
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "../components/ui/Card";
 
 export default function LPRCard({ lpr }) {
@@ -6,12 +7,12 @@ export default function LPRCard({ lpr }) {
     return (
         <Card className="bg-zinc-900">
             <CardHeader>
-                <CardTitle>{lpr.name}</CardTitle>
-                <CardDescription>{lpr.position}</CardDescription>
+                <CardTitle>{lpr.name || "Контактное лицо"}</CardTitle>
+                <CardDescription>{lpr.position || "Должность неизвестна"}</CardDescription>
             </CardHeader>
             <CardContent>
-                <p>Email: {lpr.email || "Нет данных"}</p>
-                <p>Телефон: {lpr.phone || "Нет данных"}</p>
+                {lpr.email ? <p>Email: {lpr.email}</p> : <p>Email: Нет данных</p>}
+                {lpr.phone ? <p>Телефон: {lpr.phone}</p> : <p>Телефон: Нет данных</p>}
             </CardContent>
         </Card>
     );

@@ -1,15 +1,16 @@
 import React from "react";
 
-export default function CompanyCard({ company, isMobile }) {
+export default function CompanyCard({ company, isMobile, onClick }) {
     if (!company) return null;
 
     return (
-        <div className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl shadow-sm overflow-hidden p-4 flex flex-col gap-4">
+        <div
+            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl shadow-sm overflow-hidden p-4 flex flex-col gap-4 cursor-pointer hover:bg-zinc-700"
+            onClick={onClick}
+        >
             <div>
                 <h3 className="text-xl font-semibold">{company.name || "Компания"}</h3>
-                {company.activity && (
-                    <p className="text-zinc-400 text-sm mt-1">{company.activity}</p>
-                )}
+                {company.activity && <p className="text-zinc-400 text-sm mt-1">{company.activity}</p>}
             </div>
 
             <div className="flex flex-col gap-2 text-sm text-zinc-300">
@@ -28,7 +29,6 @@ export default function CompanyCard({ company, isMobile }) {
                 {company.address && <p><span className="text-zinc-400">Адрес:</span> {company.address}</p>}
             </div>
 
-            {/* Карта внутри карточки только на мобильных */}
             {isMobile && company.address && (
                 <div className="w-full h-64 mt-4 rounded-lg overflow-hidden border border-zinc-700">
                     <iframe
